@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Canvas Test</title>
+
+  </head>
+  <body>
+    <canvas 
+      id="myCanvas" 
+      width="200" 
+      height="200"
+      style="border:1px solid #c3c3c3;"
+    >
+      Your browser does not support the necessary features for glyph drawing.
+      Please upgrade your browser to use the shape search tool.
+    </canvas>
+
+    <script>
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0,0,canvas.width, canvas.height);
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 5;
+      // ctx.strokeRect(20, 20, 150, 100);
+      
+      const rect = canvas.getBoundingClientRect();
+      let image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      const getCursorPosition = (canvas, event) => {
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        return {x: x, y: y};
+      };
+      
+      let mouseDown = false;
+      let prevCoords = null;
+      canvas.addEventListener('mousedown', (e) => {
+        mouseDown = true;
+      });
+      canvas.addEventListener('mouseup', (e) => {
+        mouseDown = false;
+        prevCoords = null;
+      });
+      
+      canvas.addEventListener('mousemove', (e) => {
+        let coords = getCursorPosition(canvas, e);
+        
+        if (mouseDown) {
+          
+          if (prevCoords) {
+            ctx.moveTo(prevCoords.x,prevCoords.y);
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+          }
+          prevCoords = coords;
+          
+          console.log(prevCoords);
+          let xy = (coords.x + coords.y * canvas.height)*4;
+          image.data[ xy ] = 0;
+          image.data[ xy + 1 ] = 0;
+          image.data[ xy + 2 ] = 0;
+          // ctx.putImageData(image, 0, 0);
+        }
+      });
+    </script>
+  </body>
+</html>
