@@ -1,1 +1,1 @@
-# Hieratic Sign Shape Search
+# Hieratic Sign Search

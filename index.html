@@ -39,6 +39,7 @@
       const down = (e) => {
         mouseDown = true;
         ctx.beginPath();
+        console.log('start drawing...');
       };
       const up = (e) => {
         mouseDown = false;
@@ -59,7 +60,7 @@
           }
           prevCoords = coords;
           
-          console.log(prevCoords);
+          // console.log(prevCoords);
           let xy = (coords.x + coords.y * canvas.height)*4;
           image.data[ xy ] = 0;
           image.data[ xy + 1 ] = 0;
@@ -77,18 +78,21 @@
       canvas.addEventListener('touchmove', move);
       
       document.body.addEventListener("touchstart", function (e) {
-        if (e.target == canvas) {
+        // if (e.target == canvas) {
           e.preventDefault();
-        }
+          console.log('touchstart');
+        // }
       }, false);
       document.body.addEventListener("touchend", function (e) {
         if (e.target == canvas) {
           e.preventDefault();
+          console.log('touchend');
         }
       }, false);
       document.body.addEventListener("touchmove", function (e) {
         if (e.target == canvas) {
           e.preventDefault();
+          console.log('touchmove');
         }
       }, false);
     </script>
