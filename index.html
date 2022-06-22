@@ -17,8 +17,8 @@
     </canvas>
 
     <script>
-      var canvas = document.getElementById("myCanvas");
-      var ctx = canvas.getContext("2d");
+      let canvas = document.getElementById("myCanvas");
+      let ctx = canvas.getContext("2d");
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0,0,canvas.width, canvas.height);
       ctx.strokeStyle = "#000000";
@@ -29,8 +29,14 @@
       let image = ctx.getImageData(0, 0, canvas.width, canvas.height);
       
       const getCursorPosition = (canvas, event) => {
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+        
+        // For touch events
+        if (isNaN(x)) {
+          x = event.touches[0].clientX - rect.left;
+          y = event.touches[0].clientY - rect.top;
+        }
         return {x: x, y: y};
       };
       
@@ -40,12 +46,14 @@
         mouseDown = true;
         ctx.beginPath();
         console.log('start drawing...');
+        e.preventDefault();
       };
       const up = (e) => {
         mouseDown = false;
         prevCoords = null;
       };
       const move = e => {
+        console.log('keep drawing');
         let coords = getCursorPosition(canvas, e);
         
         if (mouseDown) {
@@ -60,13 +68,13 @@
           }
           prevCoords = coords;
           
-          // console.log(prevCoords);
-          let xy = (coords.x + coords.y * canvas.height)*4;
-          image.data[ xy ] = 0;
-          image.data[ xy + 1 ] = 0;
-          image.data[ xy + 2 ] = 0;
+          // let xy = (coords.x + coords.y * canvas.height)*4;
+          // image.data[ xy ] = 0;
+          // image.data[ xy + 1 ] = 0;
+          // image.data[ xy + 2 ] = 0;
           // ctx.putImageData(image, 0, 0);
         }
+        e.preventDefault();
       };
       
       canvas.addEventListener('mousedown', down);
@@ -77,24 +85,24 @@
       canvas.addEventListener('mousemove', move);
       canvas.addEventListener('touchmove', move);
       
-      document.body.addEventListener("touchstart", function (e) {
-        // if (e.target == canvas) {
-          e.preventDefault();
-          console.log('touchstart');
-        // }
-      }, false);
-      document.body.addEventListener("touchend", function (e) {
-        if (e.target == canvas) {
-          e.preventDefault();
-          console.log('touchend');
-        }
-      }, false);
-      document.body.addEventListener("touchmove", function (e) {
-        if (e.target == canvas) {
-          e.preventDefault();
-          console.log('touchmove');
-        }
-      }, false);
+      // document.body.addEventListener("touchstart", function (e) {
+      //   if (e.target == canvas) {
+      //     e.preventDefault();
+      //     console.log('touchstart');
+      //   }
+      // });
+      // document.body.addEventListener("touchend", function (e) {
+      //   if (e.target == canvas) {
+      //     e.preventDefault();
+      //     console.log('touchend');
+      //   }
+      // });
+      // document.body.addEventListener("touchmove", function (e) {
+      //   if (e.target == canvas) {
+      //     e.preventDefault();
+      //     console.log('touchmove');
+      //   }
+      // }, false);
     </script>
   </body>
 </html>
