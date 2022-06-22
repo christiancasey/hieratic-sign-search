@@ -36,23 +36,26 @@
       
       let mouseDown = false;
       let prevCoords = null;
-      canvas.addEventListener('mousedown', (e) => {
+      const down = (e) => {
         mouseDown = true;
-      });
-      canvas.addEventListener('mouseup', (e) => {
+        ctx.beginPath();
+      };
+      const up = (e) => {
         mouseDown = false;
         prevCoords = null;
-      });
-      
-      canvas.addEventListener('mousemove', (e) => {
+      };
+      const move = e => {
         let coords = getCursorPosition(canvas, e);
         
         if (mouseDown) {
           
+          ctx.lineTo(coords.x, coords.y);
+          ctx.stroke();
           if (prevCoords) {
-            ctx.moveTo(prevCoords.x,prevCoords.y);
-            ctx.lineTo(coords.x, coords.y);
-            ctx.stroke();
+            
+            // ctx.moveTo(prevCoords.x,prevCoords.y);
+            // ctx.lineTo(coords.x, coords.y);
+            // ctx.stroke();
           }
           prevCoords = coords;
           
@@ -63,7 +66,31 @@
           image.data[ xy + 2 ] = 0;
           // ctx.putImageData(image, 0, 0);
         }
-      });
+      };
+      
+      canvas.addEventListener('mousedown', down);
+      canvas.addEventListener('touchstart', down);
+      canvas.addEventListener('mouseup', up);
+      canvas.addEventListener('touchend', up);
+      
+      canvas.addEventListener('mousemove', move);
+      canvas.addEventListener('touchmove', move);
+      
+      document.body.addEventListener("touchstart", function (e) {
+        if (e.target == canvas) {
+          e.preventDefault();
+        }
+      }, false);
+      document.body.addEventListener("touchend", function (e) {
+        if (e.target == canvas) {
+          e.preventDefault();
+        }
+      }, false);
+      document.body.addEventListener("touchmove", function (e) {
+        if (e.target == canvas) {
+          e.preventDefault();
+        }
+      }, false);
     </script>
   </body>
 </html>
