@@ -62,7 +62,6 @@ const down = e => {
 
 const up = e => {
   mouseDown = false;
-  console.log('Run search');
   runSearch();
 };
 
@@ -258,12 +257,8 @@ const label = (matrix, connectivity = 4) => {
       if (matrix[y][x] && !labeled[y][x]) {
         queue.unshift([y,x]);
         
-        let kill = 0;
-        while (queue.length && kill < 10000) {
-          kill++;  // prevent infinite loop for debugging
-          
+        while (queue.length) {
           let index = queue.pop();
-          
           labeled[index[0]][index[1]] = current;
           let neighbors = getNeighbors(labeled, index[0], index[1], connectivity);
           // Keep only neighbors that are not background
@@ -285,8 +280,132 @@ const label = (matrix, connectivity = 4) => {
   return labeled;
 };
 
+const edge = (matrix, connectivity = 4) => {
+  if (connectivity != 4 && connectivity != 8)
+    throw 'Invalid connectivity parameter. Must be 4 or 8. Given: ' + connectivity;
+  [n, m] = getSize(matrix);
+  
+  let edges = matrix.slice();
+  edges = edges.map(row => row.map(pixel => 0));
+  
+  for (let y = 0; y < n; y++)
+    for (let x = 0; x < m; x++)
+      if (matrix[y][x]) {
+        let neighbors = getNeighbors(labeled, y, x, connectivity);
+        isEdge = neighbors.some(neighbor => !matrix[neighbor[0]][neighbor[1]]);
+        edges[y][x] = (isEdge ? matrix[y][x] : 0);
+      }
+  return edges;
+};
 
+const getRegionByLabel = (labeled, label, complement = false) => {
+  let region = labeled.slice();
+  if (complement) {
+    region = labeled.map(row => row.map(pixel => ((pixel !== label && pixel > 0) ? 1 : 0)));
+  } else {
+    region = labeled.map(row => row.map(pixel => (pixel === label ? 1 : 0)));
+  }
+  return region;
+};
 
+const getNonZeroIndices = matrix => {
+  [n, m] = getSize(matrix);
+  
+  let indices = new Array();
+  for (let y = 0; y < n; y++)
+    for (let x = 0; x < m; x++)
+      if (matrix[y][x] > 0)
+        indices.push([y, x]);
+  return indices;
+};
+
+const connectRegions = (labeled, depth=0, n0=null) => {
+  
+  let connected = labeled.slice();
+  connected = connected.map(row => row.map( pixel => (pixel > 0 ? 1 : 0)));
+  
+  let n = Math.max(...labeled.flat());
+  
+  if (n < 2)
+    return connected;
+  
+  // prevent infinite recursion
+  if (!n0)
+    n0 = n;
+  if (depth > n0)
+    return connected;
+  
+  let source = labeled.slice();
+  let others = labeled.slice();
+  
+  for (let current = 1; current < 2; current++) {
+    source = getRegionByLabel(labeled, current, false);
+    others = getRegionByLabel(labeled, current, true);
+    
+    let sourceIndices = getNonZeroIndices(source);
+    let othersIndices = getNonZeroIndices(others);
+    let sourceLen = sourceIndices.length;
+    let othersLen = othersIndices.length;
+    
+    let dist = new Array();
+    for (let i = 0; i < sourceLen; i++) {
+      dist[i] = new Array();
+      for (let j = 0; j < othersIndices.length; j++) {
+        dist[i][j] = (sourceIndices[i][0] - othersIndices[j][0]) ** 2
+          + (sourceIndices[i][1] - othersIndices[j][1]) ** 2;
+      }
+    }
+    
+    let minDist = dist.flat().sort((a,b) => a - b)[0];
+    console.log(minDist);
+    let minIndex = dist.flat().indexOf(minDist);
+    minI = Math.floor( minIndex / othersLen );
+    minJ = minIndex % othersLen;
+    console.log([minI, minJ]);
+    
+    console.log(dist[minI][minJ]);
+    
+    // connected[sourceIndices[minI][0]][sourceIndices[minI][1]] = 2;
+    // connected[othersIndices[minJ][0]][othersIndices[minJ][1]] = 2;
+    let destLabel = labeled[othersIndices[minJ][0]][othersIndices[minJ][1]];
+    
+    let xLength = othersIndices[minJ][1] - sourceIndices[minI][1];
+    let yLength = othersIndices[minJ][0] - sourceIndices[minI][0];
+    
+    let nSteps = Math.max(Math.abs(xLength), Math.abs(yLength));
+    for (let t = 0; t <= nSteps; t+=0.25) {
+      x = Math.round(t*xLength/nSteps);
+      y = Math.round(t*yLength/nSteps);
+      
+      for (let jigger = -1; jigger <= 1; jigger++) {
+        connected[sourceIndices[minI][0]+y+jigger][sourceIndices[minI][1]+x] = 1;
+        connected[sourceIndices[minI][0]+y][sourceIndices[minI][1]+x+jigger] = 1;
+      }
+    }
+    // dist = dist.filter(distRow => distRow.includes(minDist));
+    // console.log(dist.length);
+    // dist[0].indexOf
+  }
+  
+  connected = label(connected, 8);
+  // return connected;
+  return connectRegions(connected, depth+1, n0);
+};
+
+const union = (matrix1, matrix2) => {
+  [n1, m1] = getSize(matrix1);
+  [n2, m2] = getSize(matrix2);
+  
+  // Only perform union of identically sized matrices (for now)
+  if (n1 !== n2 || m1 !== m2)
+    return null;
+  
+  for (let y = 0; y < n1; y++)
+    for (let x = 0; x < m1; x++)
+      matrix1[y][x] = (matrix1[y][x] > 0 || matrix2[y][x] > 0) ? 1 : 0;
+  
+  return matrix1;
+};
 
 const runSearch = () => {
   // let imageEdge = new MarvinImage(image.data);
@@ -301,14 +420,28 @@ const runSearch = () => {
   // });
   
   let image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  display(image, 'signPad');
+  
   let matrix = imageData2Matrix(image);
   matrix = binarize(matrix);
-  labeled = label(matrix, 8);
-  
-  display(image, 'signPad');
   display(matrix,'matrix');
+  
+  labeled = label(matrix);
   display(labeled, 'labeled');
   
+  connected = connectRegions(edge(labeled));
+  connected = union(connected, labeled);
+  display(connected, 'connected');
+  
+  edges = edge(connected);
+  display(edges, 'edges');
+  
+  
+  // Get indices for all edges
+  // Sort by x^2 + y^2
+  // Choose top left corner
+  // Go around clockwise to make polygon
+  // Interpolate polygon
 };
 
 
