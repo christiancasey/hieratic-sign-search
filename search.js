@@ -147,10 +147,10 @@ const iris = n => {
   let angleStep = 2 * Math.PI / 3; // Shift in each cos fn for color channels
   
   for (let i = 0; i <= n; i++) {
-    theta = i * thetaMax / n;
+    theta = (n-i) * thetaMax / n;
     let color = new Array();
     for (let j = 0; j < 3; j++)
-      color.push( Math.floor(256 * (Math.cos(theta-angleStep*j)+1)/2 ) );
+      color.push( Math.floor(255 * (Math.cos(theta-angleStep*j)+1)/2 ) );
     color.push(255);
     colormap.push(color);
   }
