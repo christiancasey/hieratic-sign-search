@@ -9,7 +9,7 @@ const copyMatrix = (matrix, fillValue = null) => {
 };
 
 // Returns an Array of SRGB values of length n+1 for the Iris colormap
-const iris = n => {
+const iris = (n, hex=false) => {
   let colormap = new Array();
   let purple = 2 * Math.PI / 3; // Offset to exclude magenta
   let thetaMax = 2 * Math.PI - purple; // Max length of curve in colorspace
@@ -21,6 +21,10 @@ const iris = n => {
     for (let j = 0; j < 3; j++)
       color.push( Math.floor(255 * (Math.cos(theta-angleStep*j)+1)/2 ) );
     color.push(255);
+    
+    if (hex) {
+      color = color.reduce((s,i) => s + Math.round(i).toString(16).toUpperCase(), "#");
+    }
     colormap.push(color);
   }
   

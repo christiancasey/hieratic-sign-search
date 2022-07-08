@@ -3,134 +3,136 @@
 
   <head>
     <title>Canvas Test</title>
-    <style>
-      .figure {
-        float: left;
-        margin-bottom: 0;
-      }
-      .caption {
-        margin: 0 0 10px 0;
-      }
-    </style>
+    <link rel="stylesheet" href="css.css">
   </head>
   <body>
     
     <!-- <h1>Hieratic Sign Search</h1>
     <h2>In this demo version, all steps are shown in sequential order to demonstrate the functioning of the algorithm.</h2> -->
-    
-    <canvas
-      id="signPad" 
-      width="120"
-      height="120"
-      style="border:1px solid #c3c3c3;"
-    >
-      Your browser does not support the necessary features for glyph drawing.
-      Please upgrade your browser to use the shape search tool.
-    </canvas>
-    <div>
-      <button onClick="clearPad()">Clear</button>
-    </div>
-    
-    
-    
-    <div class="figure">
+    <div id="input-canvas">
       <canvas
-        id="trace" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">8. Tracing Edges</div>
+        id="signPad" 
+        width="120"
+        height="120"
+        style="border:1px solid #c3c3c3;"
+      >
+        Your browser does not support the necessary features for glyph drawing.
+        Please upgrade your browser to use the shape search tool.
+      </canvas>
+      <div class="clearButton">
+        <button onClick="clearPad()">Clear</button>
+      </div>
     </div>
     
-    <div class="figure">
-      <canvas
-        id="pixel-polygon" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">9. Pixel-perfect Polygon</div>
-    </div>
-    
-    <br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <div id="display-figures">
+      
+      <div class="figure">
+        <canvas
+          id="trace" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">8. Tracing Edges</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="pixel-polygon" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">9. Pixel-perfect Polygon</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="interpolated-polygon" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">10. Interpolated Polygon</div>
+      </div>
+      
+      <br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-    
-    
-    <div class="figure">
-      <canvas
-        id="matrix" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">1. Input Shape</div>
+      
+      
+      <div class="figure">
+        <canvas
+          id="matrix" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">1. Input Shape</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="labeled" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">2. Labeled Regions</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="connected" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">3. Connected Regions</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="inverted-labeled" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">4. Inverted Labeled</div>
+      </div>
+      
+      
+      <div class="figure">
+        <canvas
+          id="solid" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">5. Solid Shape</div>
+      </div>
+      
+      
+      <div class="figure">
+        <canvas
+          id="edges" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">6. Edges</div>
+      </div>
+      
+      <div class="figure">
+        <canvas
+          id="topleft" 
+          width="140"
+          height="140"
+        ></canvas>
+        <div class="caption">7. Top Left Point</div>
+      </div>
     </div>
     
-    <div class="figure">
-      <canvas
-        id="labeled" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">2. Labeled Regions</div>
-    </div>
     
-    <div class="figure">
-      <canvas
-        id="connected" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">3. Connected Regions</div>
-    </div>
+    <br><br><br><br><br><br><br><br><br><br><br><br>
     
-    <div class="figure">
-      <canvas
-        id="inverted-labeled" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">4. Inverted Labeled</div>
-    </div>
-    
-    
-    <div class="figure">
-      <canvas
-        id="solid" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">5. Solid Shape</div>
-    </div>
-    
-    
-    <div class="figure">
-      <canvas
-        id="edges" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">6. Edges</div>
-    </div>
-    
-    <div class="figure">
-      <canvas
-        id="topleft" 
-        width="140"
-        height="140"
-      ></canvas>
-      <div class="caption">7. Top Left Point</div>
-    </div>
+    <div id="output"></div>
     
     
     
-    
-    
-    
-    
-    
-    
-    <script src="geometry.js"></script>
     <script src="utilities.js"></script>
     <script src="image-processing.js"></script>
     <script src="search.js"></script>
+    <script src="geometry.js"></script>
   </body>
 </html>

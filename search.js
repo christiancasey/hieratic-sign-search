@@ -109,19 +109,31 @@ const display = (image, canvasName) => {
   dispCtx.putImageData(image, 0, 0);
 };
 
-const displayPolygon = polygon => {
-  let canvas = document.getElementById("pixel-polygon");
+const displayPolygon = (polygon, canvasName, colors=true) => {
+  let canvas = document.getElementById(canvasName);
   let ctx = canvas.getContext("2d");
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0,0,canvas.width, canvas.height);
-  ctx.strokeStyle = "#000000";
-  ctx.lineWidth = 1;
+
   
-  ctx.beginPath();
-  polygon.map(coords => {
-    ctx.lineTo(coords[1], coords[0]);
-    ctx.stroke();
-  });
+  if (colors) {
+    colormap = iris(polygon.length, true);
+    for (let i = 0; i < polygon.length; i++) {
+      ctx.beginPath();
+      ctx.fillStyle = colormap[i];
+      ctx.arc(polygon[i][1], polygon[i][0], 1, 1, Math.PI * 1, true);
+      ctx.fill();
+      ctx.closePath();
+    }
+  } else {
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    polygon.map((coords,i) => {
+      ctx.lineTo(coords[1], coords[0]);
+      ctx.stroke();
+    });
+  }
 };
 
 const findTopLeft = matrix => {
@@ -142,91 +154,12 @@ const countUnvisited = matrix => {
   return matrix.flat().reduce((sum, a) => sum + a, 0);
 }
 
-const getMoveFromDir = (dir, turn) => {
-  let move = [0, 0];
-  
-  turn = (turn ? 'l' : 'r'); // A black pixel means turn left, white, right
-  let newDir = null;
-  
-  if (dir === 'e') {
-    move[0] = (turn === 'l' ? -1 : 1);
-    newDir = (turn === 'l' ? 'n' : 's');
-  }
-  if (dir === 'w') {
-    move[0] = (turn === 'r' ? -1 : 1);
-    newDir = (turn === 'r' ? 'n' : 's');
-  }
-  if (dir === 's') {
-    move[1] = (turn === 'r' ? -1 : 1);
-    newDir = (turn === 'r' ? 'w' : 'e');
-  }
-  if (dir === 'n') {
-    move[1] = (turn === 'l' ? -1 : 1);
-    newDir = (turn === 'l' ? 'w' : 'e');
-  }
-  
-  let orientation = { move: move, dir: newDir };
-  return orientation;
-};
-
-const traceShapePolygon = matrix => {
-  
-  // Extra matrix to show a nice color gradient of the tracing procedure
-  let displayTracing = copyMatrix(matrix, 0);
-  
-  
-  let start = findTopLeft(matrix);
-  let current = start.slice();
-  
-  let polygon = [];
-  polygon.push(current.slice());
-  
-  let dirs = [ 'e', 's', 'w', 'n' ];
-  let dir = 'e';
-  
-  let orientation;
-  
-  for (let i = 0; i < 10000; i++) {
-    displayTracing[current[0]][current[1]] = i;
-    
-    orientation = getMoveFromDir(dir, matrix[current[0]][current[1]]);
-    current[0] += orientation.move[0];
-    current[1] += orientation.move[1];
-    dir = orientation.dir;
-    
-    if (matrix[current[0]][current[1]]) {
-      polygon.push(current.slice());
-      displayTracing[current[0]][current[1]] = randint(10,20);
-    } else {
-      displayTracing[current[0]][current[1]] = 0;
-    }
-    
-    if (current[0] === start[0] && current[1] === start[1])
-      break;
-  }
-  
-  console.log('len of polygon ' + polygon.length);
-  display(displayTracing, 'trace');
-  
-  console.log(JSON.stringify(polygon));
-  return polygon;
-};
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // THIS IS THE PLACE WHERE THE STUFF ACTUALLY HAPPENS RIGHT NOW               //
 ////////////////////////////////////////////////////////////////////////////////
 const runSearch = () => {
-  // let imageEdge = new MarvinImage(image.data);
-  
-  // let imageEdge = new MarvinImage();
-  // imageEdge.load(canvas.toDataURL(),  () => {
-  //   let imageOut = new MarvinImage(imageEdge.getWidth(), imageEdge.getHeight());
-  //   imageOut.clear(0xFF000000);
-  //   Marvin.prewitt(imageEdge, imageOut);
-  //   Marvin.blackAndWhite(imageOut, imageOut, 100);
-  //   imageOut.draw(document.getElementById("filtered"));
-  // });
   
   let image = ctx.getImageData(0, 0, canvas.width, canvas.height);
   display(image, 'signPad');
@@ -268,11 +201,13 @@ const runSearch = () => {
   
   let polygon = traceShapePolygon(solid);
   
-  displayPolygon(polygon);
+  displayPolygon(polygon, 'pixel-polygon');
   
   
   interpolatedPolygon = interpolate(polygon);
+  // console.log(JSON.stringify(polygon));
   
+  document.getElementById('output').innerHTML = JSON.stringify(polygon);
   
 };
 
