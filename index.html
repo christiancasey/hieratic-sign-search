@@ -9,11 +9,15 @@
         margin-bottom: 0;
       }
       .caption {
-        margin: 0;
+        margin: 0 0 10px 0;
       }
     </style>
   </head>
   <body>
+    
+    <!-- <h1>Hieratic Sign Search</h1>
+    <h2>In this demo version, all steps are shown in sequential order to demonstrate the functioning of the algorithm.</h2> -->
+    
     <canvas
       id="signPad" 
       width="120"
@@ -27,13 +31,37 @@
       <button onClick="clearPad()">Clear</button>
     </div>
     
+    
+    
+    <div class="figure">
+      <canvas
+        id="trace" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">8. Tracing Edges</div>
+    </div>
+    
+    <div class="figure">
+      <canvas
+        id="pixel-polygon" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">9. Pixel-perfect Polygon</div>
+    </div>
+    
+    <br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+    
+    
     <div class="figure">
       <canvas
         id="matrix" 
         width="140"
         height="140"
       ></canvas>
-      <div class="caption">Input Shape</div>
+      <div class="caption">1. Input Shape</div>
     </div>
     
     <div class="figure">
@@ -42,7 +70,7 @@
         width="140"
         height="140"
       ></canvas>
-      <div class="caption">Labeled Regions</div>
+      <div class="caption">2. Labeled Regions</div>
     </div>
     
     <div class="figure">
@@ -51,8 +79,28 @@
         width="140"
         height="140"
       ></canvas>
-      <div class="caption">Connected Regions</div>
+      <div class="caption">3. Connected Regions</div>
     </div>
+    
+    <div class="figure">
+      <canvas
+        id="inverted-labeled" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">4. Inverted Labeled</div>
+    </div>
+    
+    
+    <div class="figure">
+      <canvas
+        id="solid" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">5. Solid Shape</div>
+    </div>
+    
     
     <div class="figure">
       <canvas
@@ -60,7 +108,7 @@
         width="140"
         height="140"
       ></canvas>
-      <div class="caption">Edges</div>
+      <div class="caption">6. Edges</div>
     </div>
     
     <div class="figure">
@@ -69,9 +117,20 @@
         width="140"
         height="140"
       ></canvas>
-      <div class="caption">Top Left Point</div>
+      <div class="caption">7. Top Left Point</div>
     </div>
     
+    
+    
+    
+    
+    
+    
+    
+    
+    <script src="geometry.js"></script>
+    <script src="utilities.js"></script>
+    <script src="image-processing.js"></script>
     <script src="search.js"></script>
   </body>
 </html>
