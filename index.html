@@ -3,13 +3,21 @@
 
   <head>
     <title>Canvas Test</title>
-
+    <style>
+      .figure {
+        float: left;
+        margin-bottom: 0;
+      }
+      .caption {
+        margin: 0;
+      }
+    </style>
   </head>
   <body>
-    <canvas 
+    <canvas
       id="signPad" 
-      width="200"
-      height="200"
+      width="120"
+      height="120"
       style="border:1px solid #c3c3c3;"
     >
       Your browser does not support the necessary features for glyph drawing.
@@ -19,30 +27,50 @@
       <button onClick="clearPad()">Clear</button>
     </div>
     
-    <canvas 
-      id="matrix" 
-      width="200"
-      height="200"
-      style="border:1px solid #c3c3c3;"
-    ></canvas>
-    <canvas 
-      id="labeled" 
-      width="200"
-      height="200"
-      style="border:1px solid #c3c3c3;"
-    ></canvas>
-    <canvas 
-      id="connected" 
-      width="200"
-      height="200"
-      style="border:1px solid #c3c3c3;"
-    ></canvas>
-    <canvas 
-      id="edges" 
-      width="200"
-      height="200"
-      style="border:1px solid #c3c3c3;"
-    ></canvas>
+    <div class="figure">
+      <canvas
+        id="matrix" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">Input Shape</div>
+    </div>
+    
+    <div class="figure">
+      <canvas
+        id="labeled" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">Labeled Regions</div>
+    </div>
+    
+    <div class="figure">
+      <canvas
+        id="connected" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">Connected Regions</div>
+    </div>
+    
+    <div class="figure">
+      <canvas
+        id="edges" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">Edges</div>
+    </div>
+    
+    <div class="figure">
+      <canvas
+        id="topleft" 
+        width="140"
+        height="140"
+      ></canvas>
+      <div class="caption">Top Left Point</div>
+    </div>
     
     <script src="search.js"></script>
   </body>

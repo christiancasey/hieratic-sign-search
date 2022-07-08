@@ -33,7 +33,7 @@ let ctx = canvas.getContext("2d");
 ctx.fillStyle = "#FFFFFF";
 // ctx.fillRect(0,0,canvas.width, canvas.height);
 ctx.strokeStyle = "#FF0000";
-ctx.lineWidth = 10;
+ctx.lineWidth = 8;
 // ctx.strokeRect(20, 20, 150, 100);
 
 const rect = canvas.getBoundingClientRect();
@@ -139,6 +139,7 @@ const binarize = matrix => {
   );
 };
 
+
 // Returns an Array of SRGB values of length n+1 for the Iris colormap
 const iris = n => {
   let colormap = new Array();
@@ -170,13 +171,17 @@ const int2RGB = matrix => {
 };
 
 const matrix2ImageData = matrix => {
+  [n, m] = getSize(matrix);
   return new ImageData(
     new Uint8ClampedArray(matrix.flat(2)),
-    image.width,
-    image.height
+    m,
+    n
   );
 };
 
+
+// DEPRECATE — Doesn't seem to be needed for anything anymore
+// Better to invert the matrix rather than the image object
 const invertImage = image => {
   let matrix = imageData2Matrix(image);
   matrix = matrix.map(row => 
@@ -203,6 +208,29 @@ const getSize = matrix => {
   return [n, m];
 };
 
+const padMatrix = (matrix, padSize = [1, 1], fillValue = 0) => {
+  // padSize[0] = y padding, padSize[1] = x padding
+  [n, m] = getSize(matrix);
+  
+  // Add the horizontal padding
+  matrix = matrix.map(row => {
+    for (let i = 0; i < padSize[1]; i++) {
+      row.unshift(fillValue);
+      row.push(fillValue);
+    }
+    return row;
+  });
+  
+  // Add the vertical padding
+  let top = new Array(m+2*padSize[1]).fill(fillValue);
+  for (let i = 0; i < padSize[0]; i++) {
+    matrix.unshift(top.slice());
+    matrix.push(top.slice());
+  }
+  
+  return matrix;
+};
+
 const getNeighbors = (matrix, y, x, connectivity = 4) => {
   if (connectivity != 4 && connectivity != 8)
     throw 'Invalid connectivity parameter. Must be 4 or 8. Given: ' + connectivity;
@@ -212,29 +240,33 @@ const getNeighbors = (matrix, y, x, connectivity = 4) => {
   
   // Doing it the dumb way to get it done
   // Probably should figure out a more elegant solution
-  if (x-1 >= 0)
-    neighborIndices.push([y, x-1]);
-  if (x+1 < m)
-    neighborIndices.push([y, x+1]);
+  // Needs to start at 12:00 and go round turnwise for polygon edge finding
+  
+  // 12
   if (y-1 >= 0)
     neighborIndices.push([y-1, x]);
+  // 1.5
+  if (connectivity === 8 && x+1 < m && y-1 >= 0)
+    neighborIndices.push([y-1, x+1]);
+  // 3
+  if (x+1 < m)
+    neighborIndices.push([y, x+1]);
+  // 4.5
+  if (connectivity === 8 && x+1 < m && y+1 < n)
+    neighborIndices.push([y+1, x+1]);
+  // 6
   if (y+1 < n)
     neighborIndices.push([y+1, x]);
+  // 7.5
+  if (connectivity === 8 && x-1 >= 0 && y+1 < n)
+    neighborIndices.push([y+1, x-1]);
+  // 9
+  if (x-1 >= 0)
+    neighborIndices.push([y, x-1]);
+  //10.5
+  if (connectivity === 8 && x-1 >= 0 && y-1 >= 0)
+    neighborIndices.push([y-1, x-1]);
   
-  if (connectivity === 8) {
-    if (x-1 >= 0 && y-1 >= 0)
-      neighborIndices.push([y-1, x-1]);
-    if (x+1 < m && y-1 >= 0)
-      neighborIndices.push([y-1, x+1]);
-    if (x-1 >= 0 && y+1 < n)
-      neighborIndices.push([y+1, x-1]);
-    if (x+1 < m && y+1 < n)
-      neighborIndices.push([y+1, x+1]);
-  }
-  
-  // let neighbors = neighborIndices.map(index => matrix[index[0]][index[1]]);
-  // 
-  // return neighbors;
   return neighborIndices;
 }
 
@@ -357,13 +389,9 @@ const connectRegions = (labeled, depth=0, n0=null) => {
     }
     
     let minDist = dist.flat().sort((a,b) => a - b)[0];
-    console.log(minDist);
     let minIndex = dist.flat().indexOf(minDist);
     minI = Math.floor( minIndex / othersLen );
     minJ = minIndex % othersLen;
-    console.log([minI, minJ]);
-    
-    console.log(dist[minI][minJ]);
     
     // connected[sourceIndices[minI][0]][sourceIndices[minI][1]] = 2;
     // connected[othersIndices[minJ][0]][othersIndices[minJ][1]] = 2;
@@ -382,9 +410,6 @@ const connectRegions = (labeled, depth=0, n0=null) => {
         connected[sourceIndices[minI][0]+y][sourceIndices[minI][1]+x+jigger] = 1;
       }
     }
-    // dist = dist.filter(distRow => distRow.includes(minDist));
-    // console.log(dist.length);
-    // dist[0].indexOf
   }
   
   connected = label(connected, 8);
@@ -407,6 +432,28 @@ const union = (matrix1, matrix2) => {
   return matrix1;
 };
 
+const invert = matrix => {
+  return matrix.map(row => 
+    row.map(pixel => pixel ? 0 : 1)
+  );
+};
+
+const findTopLeft = matrix => {
+  let sourceIndices = getNonZeroIndices(matrix);
+  
+  if (!sourceIndices.length)
+    return [0, 0];
+  
+  let distances = sourceIndices.map(index => index[0] ** 2 + index[1] ** 2);
+  let minDist = distances.flat().sort((a,b) => a - b)[0];
+  // let minDist = Math.min(...distances);
+  let iMinDist = distances.indexOf(minDist);
+  return sourceIndices[iMinDist];
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// THIS IS THE PLACE WHERE THE STUFF ACTUALLY HAPPENS RIGHT NOW               //
+////////////////////////////////////////////////////////////////////////////////
 const runSearch = () => {
   // let imageEdge = new MarvinImage(image.data);
   
@@ -424,7 +471,11 @@ const runSearch = () => {
   
   let matrix = imageData2Matrix(image);
   matrix = binarize(matrix);
-  display(matrix,'matrix');
+  
+  // Add a bit of padding to the original so that strokes that hit the frame 
+  // still get proper edges around them in the final polygon
+  matrix = padMatrix(matrix, [4, 4], 0);
+  display(matrix, 'matrix');
   
   labeled = label(matrix);
   display(labeled, 'labeled');
@@ -433,13 +484,22 @@ const runSearch = () => {
   connected = union(connected, labeled);
   display(connected, 'connected');
   
-  edges = edge(connected);
+  // Inverting the image first pushes the edge one pixel out.
+  // (It finds the edge of the background rather than foreground.) 
+  // This makes it impossible that single-pixel-width lines will create edges that have erroneous 8-connected pixels.
+  edges = edge(invert(connected));
   display(edges, 'edges');
   
+  let topLeft = findTopLeft(edges);
+  console.log(topLeft);
+  edges[topLeft[0]][topLeft[1]] = 10;
+  display(edges, 'topleft');
   
-  // Get indices for all edges
-  // Sort by x^2 + y^2
-  // Choose top left corner
+  
+  
+  
+  
+  //////// TODO
   // Go around clockwise to make polygon
   // Interpolate polygon
 };
