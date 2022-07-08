@@ -70,8 +70,8 @@ const move = e => {
   let rect = canvas.getBoundingClientRect();
   
   if (mouseDown) {
-    // ctx.lineTo(coords.x, coords.y);
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.lineTo(coords.x, coords.y);
+    // ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
     ctx.stroke();
     
     image = ctx.getImageData(0, 0, canvas.width, canvas.height);
