@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Data Processing</title>
+    <link rel="stylesheet" href="css.css">
+  </head>
+  <body>
+    
+    <!-- <h1>Hieratic Sign Search</h1>
+    <h2>In this demo version, all steps are shown in sequential order to demonstrate the functioning of the algorithm.</h2> -->
+    <div id="input-canvas">
+      <canvas
+        id="current" 
+        width="300"
+        height="300"
+        style="border:1px solid #c3c3c3;"
+      >
+        Your browser does not support the necessary features for glyph drawing.
+        Please upgrade your browser to use the shape search tool.
+      </canvas>
+      <div class="clearButton">
+        <button onClick="clearPad()">Clear</button>
+      </div>
+    </div>
+    
+    
+    <div id="display-figures">
+      
+      <div class="figure">
+        <canvas
+          id="output-image" 
+          width="300"
+          height="300"
+          style="border:1px solid #c3c3c3;"
+        ></canvas>
+        <div class="caption">Output</div>
+      </div>
+      
+    </div>
+    
+    <!-- <script src="search.js"></script> -->
+    <script src="utilities.js"></script>
+    <script src="image-processing.js"></script>
+    <script src="data-collection.js"></script>
+  </body>
+</html>

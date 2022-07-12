@@ -1,6 +1,56 @@
 // Image processing functions with wide range of usage
 
 
+const display = (image, canvasName) => {
+  // Display both integer matrices and imageData
+  if (!image.data) {
+    image = matrix2ImageData(int2RGB(image));
+  }
+  
+  let dispCanvas = document.getElementById(canvasName);
+  if (!dispCanvas)
+    throw 'Invalid canvas id: ' + canvasName;
+  
+  let dispCtx = dispCanvas.getContext("2d");
+  dispCtx.putImageData(image, 0, 0);
+};
+
+const displayPolygon = (polygon, canvasName, colors=true) => {
+  let canvas = document.getElementById(canvasName);
+  let ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0,0,canvas.width, canvas.height);
+
+  
+  colormap = iris(polygon.length, true);
+  if (false) {
+    for (let i = 0; i < polygon.length; i++) {
+      ctx.beginPath();
+      ctx.fillStyle = colormap[i];
+      ctx.arc(polygon[i][1], polygon[i][0], 1, 1, Math.PI * 1, true);
+      ctx.fill();
+      ctx.closePath();
+    }
+  } else {
+    
+    for (let i = 0; i < polygon.length; i++) {
+      ctx.beginPath();
+      ctx.strokeStyle = colormap[i];
+      ctx.lineWidth = 1;
+      ctx.moveTo(polygon[i][1], polygon[i][0]);
+      ctx.lineTo(polygon[(i+1) % polygon.length][1], polygon[(i+1) % polygon.length][0]);
+      ctx.stroke();
+    }
+    // ctx.strokeStyle = "#000000";
+    // ctx.lineWidth = 1;
+    // ctx.beginPath();
+    // polygon.map((coords,i) => {
+    //   ctx.lineTo(coords[1], coords[0]);
+    //   ctx.stroke();
+    // });
+  }
+};
+
 const copyImage = image => {
   const newImage = new ImageData(
     new Uint8ClampedArray(image.data),
@@ -32,6 +82,9 @@ const imageData2Matrix = imageData => {
 // Uses the iris colormap to decide on values
 const int2RGB = matrix => {
   let n = Math.max(...matrix.flat());
+  // let n = Math.max(...matrix.map(row => Math.max(...row)));
+  // let n = matrix.flat().sort().slice(-1);
+  
   colormap = iris(n);
   return matrix.map(row => 
     // row.map(pixel => (pixel ? [255, 255, 255, 255] : [0, 0, 0, 255]))
@@ -65,9 +118,16 @@ const invertImage = image => {
 
 
 const binarize = matrix => {
-  return matrix.map(row => 
-    row.map(pixel => (pixel[3] ? 1 : 0))
-  );
+  if (matrix.flat().some(pixel => pixel.length > 3 && pixel[3] === 0)) {
+    return matrix.map(row => 
+      row.map(pixel => (pixel[3] ? 1 : 0))
+    );
+  } else {
+    return matrix.map(row => 
+      row.map(pixel => (pixel.some(p => (p>0 ? 1 : 0)))
+    ));
+  }
+  
 };
 
 

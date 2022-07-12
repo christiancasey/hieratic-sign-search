@@ -36,3 +36,9 @@ const randint = (min, max) => {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 };
+
+const addArrays = (a1, a2) => {
+  if (a1.flat().length !== a2.flat().length)
+    throw 'Array sizes don\'t match';
+  return a1.map((a,i) => a + a2[i]);
+}

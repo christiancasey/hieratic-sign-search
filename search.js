@@ -33,7 +33,7 @@ let ctx = canvas.getContext("2d");
 ctx.fillStyle = "#FFFFFF";
 // ctx.fillRect(0,0,canvas.width, canvas.height);
 ctx.strokeStyle = "#FF0000";
-ctx.lineWidth = 8;
+ctx.lineWidth = 5;
 // ctx.strokeRect(20, 20, 150, 100);
 
 const rect = canvas.getBoundingClientRect();
@@ -95,46 +95,6 @@ const clearPad = e => {
   runSearch();
 }
 
-const display = (image, canvasName) => {
-  // Display both integer matrices and imageData
-  if (!image.data) {
-    image = matrix2ImageData(int2RGB(image));
-  }
-  
-  let dispCanvas = document.getElementById(canvasName);
-  if (!dispCanvas)
-    throw 'Invalid canvas id: ' + canvasName;
-  
-  let dispCtx = dispCanvas.getContext("2d");
-  dispCtx.putImageData(image, 0, 0);
-};
-
-const displayPolygon = (polygon, canvasName, colors=true) => {
-  let canvas = document.getElementById(canvasName);
-  let ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillRect(0,0,canvas.width, canvas.height);
-
-  
-  if (colors) {
-    colormap = iris(polygon.length, true);
-    for (let i = 0; i < polygon.length; i++) {
-      ctx.beginPath();
-      ctx.fillStyle = colormap[i];
-      ctx.arc(polygon[i][1], polygon[i][0], 1, 1, Math.PI * 1, true);
-      ctx.fill();
-      ctx.closePath();
-    }
-  } else {
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    polygon.map((coords,i) => {
-      ctx.lineTo(coords[1], coords[0]);
-      ctx.stroke();
-    });
-  }
-};
 
 const findTopLeft = matrix => {
   let sourceIndices = getNonZeroIndices(matrix);
@@ -205,7 +165,10 @@ const runSearch = () => {
   
   
   interpolatedPolygon = interpolate(polygon);
-  // console.log(JSON.stringify(polygon));
+  displayPolygon(interpolatedPolygon, 'interpolated-polygon');
+  
+  interpolatedPolygon = normalize(interpolatedPolygon);
+  // displayPolygon(interpolatedPolygon, 'interpolated-polygon');
   
   document.getElementById('output').innerHTML = JSON.stringify(polygon);
   
